@@ -16,7 +16,7 @@ This project explores these themes of Sentient Design:
 
 - **Smart defaults with room to play.** Use the "nudge" UI design pattern to help new users get started with example prompts.
 
-## Getting Started
+## Getting started
 
 ### Prerequisites
 - Web server with PHP 5.6+ support
@@ -38,7 +38,7 @@ nano config.php  # Edit to add your API key
 2. Click or tap one of the scene suggestion nudges, or type your own description in the text input field (e.g., "incredible hulk").
 3. Watch as the square character animates according to your description, as the color and typeface change to match the mood.
 
-## How it Works
+## How it works
 
 The project consists of an interface made out of HTML, CSS, and vanilla JavaScript. The UI communicates with OpenAI via a thin PHP web app, which responds to user prompts with a JSON object giving the client-side application the info it needs to update its UI.
 
@@ -91,15 +91,23 @@ To enable debugging, set the `DEBUG` flag to `true` in `script.js`:
 ```javascript
 const DEBUG = true;
 ```
-## License
 
-This project is licensed under the MIT License.
+When enabled, the console shows color-coded information for each scene request:
 
-Copyright © 2025 Josh Clark and Big Medium.
+- **Requests**: Shows what text was sent to the API
+- **Responses**: Displays the returned scene data (colors, animation, caption, etc.)
+- **Token Usage**: Shows API token consumption and estimated costs
+- **Errors**: Captures any issues that occur during processing
+
+This information helps with troubleshooting and provides insight into how AI transforms text descriptions into visual scenes.
 
 ## Credits
 
-- Design and Development: [Josh Clark](https://bigmedium.com/about/josh-clark.html) and [Big Medium](https://bigmedium.com/)
+Design and Development: [Josh Clark](https://bigmedium.com/about/josh-clark.html) and [Big Medium](https://bigmedium.com/)
+
+## License
+
+This project is licensed under the MIT License. Copyright © 2025 Josh Clark and Big Medium.
 
 ## About Sentient Design
 
