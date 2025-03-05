@@ -1,0 +1,451 @@
+/* ==========================================================================
+   CSS Variables & Base Styles
+   ========================================================================== */
+:root {
+    font-size: 16px;
+    --background-color: #1a1c2c;
+    --foreground-color: #99ccff;
+    --glow-effect: 0 0 1rem rgba(153, 204, 255, 0.3);
+    --caption-font: 'Arial', sans-serif;
+    --overlay-bg: rgba(255, 255, 255, 0.1);
+    --border-highlight: rgba(255, 255, 255, 0.1);
+}
+
+/* Reset & Base Styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    height: 100vh;
+    height: 100dvh;
+    margin: 0;
+    background-color: var(--background-color);
+    overflow: hidden;
+}
+
+a {
+    color: var(--foreground-color);
+    text-decoration: underline;
+}
+
+.visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+
+/* ==========================================================================
+   Layout & Container Styles
+   ========================================================================== */
+.app-container {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    height: 100dvh;
+    max-height: 100vh;
+    max-height: 100dvh;
+}
+
+/* Main Scene Container */
+.scene-container {
+    flex: 1;
+    position: relative;
+    background-color: var(--background-color);
+    transition: background-color 0.5s;
+    overflow: hidden;
+    min-height: 0;
+}
+
+/* Scene Caption */
+.scene-caption {
+    position: absolute;
+    top: 2rem;
+    left: 50%;
+    transform: translateX(-50%);
+    color: var(--foreground-color);
+    font-family: var(--caption-font);
+    font-size: 2rem;
+    text-align: center;
+    padding: 1rem;
+    width: 90%;
+    max-width: 50rem;
+    transition: color 0.5s, font-family 0.5s;
+    text-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.5);
+    font-weight: 500;
+    margin: 0;
+}
+@media screen and (max-width: 768px) {
+  .scene-caption {
+    font-size: 1.5rem;
+    padding: 0.75rem;
+    top: 1.5rem;
+  }
+}
+
+/* Animated Character */
+.scene-character {
+    position: absolute;
+    width: 12vw;
+    height: 12vw;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: var(--foreground-color);
+    box-shadow: var(--glow-effect);
+    border-radius: 10%;
+    transition: background-color 0.5s, box-shadow 0.5s;
+}
+
+/* ==========================================================================
+   Controls Section Styles
+   ========================================================================== */
+.controls-section {
+    background: var(--overlay-bg);
+    backdrop-filter: blur(0.5rem);
+    border-top: 1px solid var(--border-highlight);
+}
+
+.controls-container {
+    padding: 0.75rem 1rem;
+    display: flex;
+    justify-content: center;
+}
+
+.input-group {
+    display: flex;
+    gap: 0.5rem;
+    width: 100%;
+    max-width: 45rem;
+    align-items: center;
+}
+
+/* Input Field Styles */
+.input-wrapper {
+    position: relative;
+    flex: 1;
+}
+
+.scene-input {
+    width: 100%;
+    height: 3rem;
+    padding: 0 2rem 0 1rem;
+    border: 1px solid var(--foreground-color);
+    border-radius: 0.5rem;
+    font-size: 1rem;
+    background: var(--overlay-bg);
+    color: var(--foreground-color);
+    outline: none;
+}
+
+.scene-input::placeholder {
+    color: var(--foreground-color);
+    opacity: 0.5;
+}
+
+.scene-input:focus {
+    background: rgba(255, 255, 255, 0.15);
+    box-shadow: 0 0 0 2px rgba(153, 204, 255, 0.1);
+}
+
+/* Clear Button */
+.clear-button {
+    position: absolute;
+    right: 0.5rem;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 1.5rem;
+    height: 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    color: var(--foreground-color);
+    opacity: 0.6;
+    border-radius: 50%;
+}
+
+.clear-button:hover {
+    opacity: 1;
+    background: var(--overlay-bg);
+}
+
+.clear-button svg {
+    width: 1rem;
+    height: 1rem;
+}
+
+/* Show/Hide Clear Button */
+.scene-input:not(:placeholder-shown) + .clear-button {
+    display: flex;
+}
+
+.scene-input:placeholder-shown + .clear-button {
+    display: none;
+}
+
+/* Submit Button */
+.submit-button {
+    height: 3rem;
+    padding: 0 1.5rem;
+    background: var(--overlay-bg);
+    color: var(--foreground-color);
+    border: 1px solid var(--foreground-color);
+    border-radius: 0.5rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.submit-button:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.submit-button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* ==========================================================================
+   Nudgess Navigation
+   ========================================================================== */
+.nudges-nav {
+    width: 100%;
+    padding: 0.125rem 1rem 0.75rem;
+    display: flex;
+    gap: 0.5rem;
+    overflow-x: auto;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    justify-content: center;
+}
+
+.nudges-nav::-webkit-scrollbar {
+    display: none;
+}
+
+/* Center nudges with overflow handling */
+.nudges-nav:has(.nudge-chip:first-child + .nudge-chip + .nudge-chip:not(:last-child)) {
+    justify-content: flex-start;
+}
+
+.nudge-chip {
+    flex-shrink: 0;
+    padding: 0.5rem 1rem;
+    background: var(--overlay-bg);
+    color: var(--foreground-color);
+    border: 1px solid var(--foreground-color);
+    border-radius: 2rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+    white-space: nowrap;
+}
+
+.nudge-chip:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: translateY(-1px);
+}
+
+.nudge-chip:active {
+    transform: translateY(0);
+}
+
+.nudge-emoji {
+    margin-right: 0.25rem;
+}
+
+.nudge-chip.disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    pointer-events: none;
+    border-color: rgba(153, 204, 255, 0.3);
+}
+
+/* Add keyboard navigation styles */
+.nudge-chip:focus {
+    outline: 2px solid var(--foreground-color);
+    outline-offset: 2px;
+}
+
+.nudge-chip:focus:not(:focus-visible) {
+    outline: none;
+}
+
+/* ==========================================================================
+   Footer Styles
+   ========================================================================== */
+.app-footer {
+    background: var(--overlay-bg);
+    backdrop-filter: blur(0.5rem);
+    border-top: 1px solid var(--border-highlight);
+    padding: 0.75rem 1rem;
+    display: flex;
+    justify-content: center;
+}
+
+.footer-content {
+    width: 100%;
+    max-width: 45rem;
+    color: var(--foreground-color);
+    font-size: 0.875rem;
+    line-height: 1.5;
+    opacity: 0.8;
+    text-align: center;
+}
+
+/* ==========================================================================
+   Loading Animation Styles
+   ========================================================================== */
+.loading-dots {
+    display: inline-flex;
+    gap: 0.25rem;
+    animation: fade-in 0.2s ease-out;
+}
+
+.loading-dots.hidden {
+    display: none;
+}
+
+.button-text.hidden {
+    display: none;
+}
+
+.dot {
+    width: 0.25rem;
+    height: 0.25rem;
+    background-color: currentColor;
+    border-radius: 50%;
+    will-change: transform;
+}
+
+.loading-dots.animate .dot {
+    animation: bounce-dot 0.9s infinite;
+}
+
+.loading-dots.animate .dot:nth-child(2) {
+    animation-delay: 0.3s;
+}
+
+.loading-dots.animate .dot:nth-child(3) {
+    animation-delay: 0.6s;
+}
+
+/* ==========================================================================
+   Animation Keyframes
+   ========================================================================== */
+@keyframes bounce-dot {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-0.25rem); }
+}
+
+@keyframes fade-in {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+/* Character Square Animations */
+@keyframes breathing {
+    0%, 100% {
+        transform: translate(-50%, -50%) scale(1);
+        box-shadow: 0 0 1rem rgba(153, 204, 255, 0.3);
+    }
+    50% {
+        transform: translate(-50%, -50%) scale(1.1);
+        box-shadow: 0 0 2rem rgba(153, 204, 255, 0.4);
+    }
+}
+
+@keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-15vh); }
+}
+
+@keyframes float {
+    0%, 100% { transform: translate(0, 0); }
+    25% { transform: translate(10vw, -10vh); }
+    50% { transform: translate(15vw, 0); }
+    75% { transform: translate(10vw, 10vh); }
+}
+
+@keyframes jitter {
+    0%, 100% { transform: translate(0, 0); }
+    25% { transform: translate(-5vw, 5vh); }
+    50% { transform: translate(5vw, -5vh); }
+    75% { transform: translate(-5vw, -5vh); }
+}
+
+@keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.2); }
+}
+
+@keyframes drift {
+    0% { transform: translate(0, 0) rotate(0deg); }
+    25% { transform: translate(40vw, 35vh) rotate(90deg); }
+    50% { transform: translate(-40vw, -35vh) rotate(180deg); }
+    75% { transform: translate(-40vw, 35vh) rotate(270deg); }
+    100% { transform: translate(0, 0) rotate(360deg); }
+}
+
+@keyframes error-shake {
+    0%, 100% { transform: translate(-50%, -50%) rotate(0deg); }
+    25% { transform: translate(-50%, -50%) rotate(-5deg); }
+    75% { transform: translate(-50%, -50%) rotate(5deg); }
+}
+
+/* ==========================================================================
+   Animation Classes
+   ========================================================================== */
+.scene-character.bounce { animation: bounce 1s ease-in-out infinite; }
+.scene-character.float { animation: float 3s ease-in-out infinite; }
+.scene-character.jitter { animation: jitter 0.2s linear infinite; }
+.scene-character.pulse { animation: pulse 2s ease-in-out infinite; }
+.scene-character.drift { animation: drift 10s linear infinite; }
+
+/* Default breathing animation when no other animations are active */
+.scene-character:not([style*="animation"]):not(.bounce):not(.float):not(.jitter):not(.pulse):not(.drift) {
+    animation: breathing 4s ease-in-out infinite;
+}
+
+/* error shake */
+.scene-character.error {
+    animation: error-shake 0.4s ease-in-out;
+    background-color: #ff4444 !important;
+    transition: background-color 0.3s ease;
+}
+
+/* ==========================================================================
+   REDUCED MOTION PREFERENCES
+   ========================================================================== */
+@media (prefers-reduced-motion: reduce) {
+    .scene-character {
+        transition: none;
+        animation: none !important;
+    }
+    
+    .scene-character:not([style*="animation"]):not(.bounce):not(.float):not(.jitter):not(.pulse):not(.drift) {
+        animation: none !important;
+    }
+    
+    .loading-dots .dot {
+        animation: none !important;
+    }
+}
+

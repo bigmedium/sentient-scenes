@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Sentient Scenes | Big Medium</title>
+    <meta name="description" content="A radically adaptive interface that changes style and behavior on demand, creating animated scenes starring an adventurous little square. It's a playful demo of Sentient Design in action.">
+    <meta name="author" content="Josh Clark">
+    <meta name="copyright" content="Copyright © 2025 Global Moxie LLC (Big Medium)">
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://bigmedium.com/labs/scenes/">
+    <meta property="og:title" content="Sentient Scenes | Big Medium">
+    <meta property="og:description" content="A radically adaptive interface that changes style and behavior on demand, creating animated scenes starring an adventurous little square. It's a playful demo of Sentient Design in action.">
+    <meta property="og:image" content="https://bigmedium.com/labs/scenes/scenes.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:site_name" content="Big Medium">
+    <meta property="og:locale" content="en_US">
+
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:url" content="https://bigmedium.com/labs/scenes/">
+    <meta name="twitter:title" content="Sentient Scenes | Big Medium">
+    <meta name="twitter:description" content="A radically adaptive interface that changes style and behavior on demand, creating animated scenes starring an adventurous little square. It's a playful demo of Sentient Design in action.">
+    <meta name="twitter:image" content="https://bigmedium.com/labs/scenes/scenes.png">
+
+    <meta name="theme-color" content="#1a1c2c">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="app-container">
+        <main class="scene-container" aria-label="Interactive scene display">
+            <h1 id="captionText" class="scene-caption" aria-live="polite">
+                <span class="emoji" aria-hidden="true">🎬</span>
+                <span>Describe a scene and watch it come to life...</span>
+            </h1>
+            <div id="characterSquare" 
+                 class="scene-character" 
+                 role="img" 
+                 aria-live="polite"
+                 aria-label="Animated character">
+                <div class="visually-hidden" id="movementDescription">
+                    Character is at rest in the center of the screen
+                </div>
+            </div>
+        </main>
+
+        <section class="controls-section">
+            <div class="controls-container">
+                <div class="input-group">
+                    <div class="input-wrapper">
+                        <input type="text" 
+                               id="sceneInput" 
+                               class="scene-input"
+                               placeholder="What's your scene?" 
+                               aria-label="Scene description">
+                        <button id="clearInput" 
+                                class="clear-button" 
+                                aria-label="Clear input">
+                            <svg xmlns="http://www.w3.org/2000/svg" 
+                                 viewBox="0 0 24 24" 
+                                 width="16" 
+                                 height="16" 
+                                 aria-hidden="true">
+                                <path fill="currentColor" 
+                                      d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+                            </svg>
+                        </button>
+                    </div>
+                    <button id="submitScene" class="submit-button" 
+                            class="submit-button"
+                            aria-label="Generate scene">
+                        <span class="button-text">Go</span>
+                        <span class="loading-dots hidden" aria-hidden="true">
+                            <span class="dot"></span>
+                            <span class="dot"></span>
+                            <span class="dot"></span>
+                        </span>
+                    </button>
+                </div>
+            </div>
+
+            <nav class="nudges-nav" aria-label="Scene suggestions">
+                <button class="nudge-chip" data-scene="The submarine descends">
+                    <span class="nudge-emoji" aria-hidden="true">🐠</span>
+                    <span class="nudge-text">The submarine descends</span>
+                </button>
+                <button class="nudge-chip" data-scene="A graceful, twirling ballet">
+                    <span class="nudge-emoji" aria-hidden="true">👯‍♀️</span>
+                    <span class="nudge-text">A graceful, twirling ballet</span>
+                </button>
+                <button class="nudge-chip" data-scene="Scooby Doo in the haunted house">
+                    <span class="nudge-emoji" aria-hidden="true">👻</span>
+                    <span class="nudge-text">Scooby Doo in the haunted house</span>
+                </button>
+                <button class="nudge-chip" data-scene="Rocket to Mars">
+                    <span class="nudge-emoji" aria-hidden="true">🚀</span>
+                    <span class="nudge-text">Rocket to Mars</span>
+                </button>
+                <button class="nudge-chip" data-scene="Willy Wonka's factory bursts apart">
+                    <span class="nudge-emoji" aria-hidden="true">🍭</span>
+                    <span class="nudge-text">Willy Wonka's factory bursts apart</span>
+                </button>
+                <button class="nudge-chip" data-scene="A pirate's life for me">
+                    <span class="nudge-emoji" aria-hidden="true">🏴‍☠️</span>
+                    <span class="nudge-text">A pirate's life for me</span>
+                </button>
+                <button class="nudge-chip" data-scene="Race cars spin around the track">
+                    <span class="nudge-emoji" aria-hidden="true">🚗</span>
+                    <span class="nudge-text">Race cars spin around the track</span>
+                </button>
+                <button class="nudge-chip" data-scene="1980s computer glitch">
+                    <span class="nudge-emoji" aria-hidden="true">💾</span>
+                    <span class="nudge-text">1980s computer glitch</span>
+                </button>
+            </nav>
+        </section>
+
+        <footer class="app-footer">
+            <div class="footer-content">
+                This is a cute demo of <a href="https://bigmedium.com/ideas/hello-sentient-design.html">Sentient Design</a> and radically adaptive interfaces.<br>
+                Copyright © 2025 <a href="https://bigmedium.com/about/josh-clark.html">Josh Clark</a> and <a href="https://bigmedium.com">Big Medium</a>.
+            </div>
+        </footer>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
