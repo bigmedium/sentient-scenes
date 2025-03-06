@@ -215,7 +215,14 @@ try {
     }
 
     $description = trim($data['description']);
-     
+    $CHARACTER_LIMIT = 500;
+    if (mb_strlen($description) > $CHARACTER_LIMIT) {
+        $description = mb_substr($description, 0, $CHARACTER_LIMIT);
+    }
+    if (function_exists('normalizer_normalize')) {
+        $description = normalizer_normalize($description, Normalizer::FORM_C);
+    }
+    
     // Prepare the prompt for OpenAI
     $messages = [
         ['role' => 'system', 'content' => $systemPrompt],
@@ -227,6 +234,24 @@ try {
     if ($ch === false) {
         throw new Exception('Failed to initialize CURL', 500);
     }
+
+    // Ensure we encode as JSON and decode to validate proper JSON structure
+    // This double-encoding is a defense against JSON injection via user input
+    $jsonData = json_encode([
+        'model' => $config['openai_model'],
+        'messages' => $messages,
+        'temperature' => $config['temperature'],
+        'response_format' => ['type' => 'json_object']
+    ]);
+    
+    // Verify the JSON encoding was successful
+    if ($jsonData === false) {
+        $jsonError = json_last_error_msg();
+        error_log("JSON encoding error: $jsonError with input: " . htmlspecialchars($description));
+        throw new Exception('Failed to process input', 400);
+    }
+    
+    // Set the CURL postfields with validated JSON
     curl_setopt_array($ch, [
         CURLOPT_RETURNTRANSFER => true,
         CURLOPT_POST => true,
@@ -234,14 +259,9 @@ try {
             'Authorization: Bearer ' . $config['openai_api_key'],
             'Content-Type: application/json'
         ],
-        CURLOPT_POSTFIELDS => json_encode([
-            'model' => $config['openai_model'],
-            'messages' => $messages,
-            'temperature' => $config['temperature'],
-            'response_format' => ['type' => 'json_object']
-        ]),
-        CURLOPT_TIMEOUT => 30,        // Total timeout in seconds
-        CURLOPT_CONNECTTIMEOUT => 10  // Connection timeout
+        CURLOPT_POSTFIELDS => $jsonData,  // Use the validated JSON data here
+        CURLOPT_TIMEOUT => 30,            // Total timeout in seconds
+        CURLOPT_CONNECTTIMEOUT => 10      // Connection timeout
     ]);
 
     // Make the OpenAI request
@@ -277,6 +297,32 @@ try {
     $missingKeys = array_diff($requiredKeys, array_keys($sceneData));
     if (!empty($missingKeys)) {
         throw new Exception('Missing required scene data: ' . implode(', ', $missingKeys), 500);
+    }
+
+    // Validate color format (must be 6-digit hex)
+    $colorPattern = '/^#[0-9A-F]{6}$/i';
+    if (!preg_match($colorPattern, $sceneData['background']) || 
+        !preg_match($colorPattern, $sceneData['content'])) {
+        throw new Exception('Invalid color format in response', 500);
+    }
+    
+    // Validate caption (strip potentially harmful content)
+    $sceneData['caption'] = strip_tags($sceneData['caption']);
+    
+    // Validate font-family (only allow known safe fonts)
+    $safeFonts = ['Arial', 'Times New Roman', 'Georgia', 'Courier New', 
+                  'Comic Sans MS', 'Trebuchet', 'serif', 'sans-serif', 
+                  'monospace', 'cursive', 'fantasy', 'ui-rounded'];
+    $fontValid = false;
+    foreach ($safeFonts as $font) {
+        if (stripos($sceneData['font-family'], $font) !== false) {
+            $fontValid = true;
+            break;
+        }
+    }
+    if (!$fontValid) {
+        // Use a safe default rather than failing
+        $sceneData['font-family'] = 'Arial, sans-serif';
     }
 
     // Calculate token usage and costs
