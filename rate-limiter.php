@@ -75,8 +75,6 @@ class RateLimiter {
                 'last_refill' => time()
             ];
         }
-        
-        $this->logBucketState("Session initialized");
     }
 
     /**
@@ -122,8 +120,6 @@ class RateLimiter {
         // Decrement global buckets
         $this->decrementGlobalBucket('minute');
         $this->decrementGlobalBucket('day');
-        
-        $this->logBucketState("After consumption");
     }
 
     /**
@@ -136,8 +132,6 @@ class RateLimiter {
         // Refill tokens based on elapsed time
         $this->refillUserBucket('minute', $limits['per_minute']['max'], self::MINUTE_WINDOW, $now);
         $this->refillUserBucket('day', $limits['per_day']['max'], self::DAY_WINDOW, $now);
-        
-        $this->logBucketState("After refill");
         
         // Check minute bucket against current config limit
         if ($_SESSION['token_buckets']['minute']['tokens'] < 1) {
@@ -363,46 +357,5 @@ class RateLimiter {
             'code' => $code,
             'message' => $message
         ];
-    }
-    
-    /**
-     * Debug helper for tracking bucket states
-     * Only logs when DEBUG_MODE is true
-     */
-    private function logBucketState($message) {
-        if (!self::DEBUG_MODE) {
-            return;
-        }
-        
-        $logFile = $this->dataDir . '/rate_debug.log';
-        $timestamp = date('Y-m-d H:i:s');
-        $sessionId = session_id();
-        
-        // Get current user bucket levels
-        $minuteTokens = isset($_SESSION['token_buckets']['minute']['tokens']) 
-            ? $_SESSION['token_buckets']['minute']['tokens'] 
-            : 'undefined';
-        
-        $minuteLastRefill = isset($_SESSION['token_buckets']['minute']['last_refill']) 
-            ? date('Y-m-d H:i:s', $_SESSION['token_buckets']['minute']['last_refill']) 
-            : 'undefined';
-        
-        $dayTokens = isset($_SESSION['token_buckets']['day']['tokens']) 
-            ? $_SESSION['token_buckets']['day']['tokens'] 
-            : 'undefined';
-        
-        $dayLastRefill = isset($_SESSION['token_buckets']['day']['last_refill']) 
-            ? date('Y-m-d H:i:s', $_SESSION['token_buckets']['day']['last_refill']) 
-            : 'undefined';
-        
-        // Also log current config limits for comparison
-        $minuteMax = $this->config['rate_limits']['user']['per_minute']['max'];
-        $dayMax = $this->config['rate_limits']['user']['per_day']['max'];
-        
-        $logMessage = "$timestamp [$sessionId] $message - " .
-                     "Minute: tokens=$minuteTokens/$minuteMax, last_refill=$minuteLastRefill | " .
-                     "Day: tokens=$dayTokens/$dayMax, last_refill=$dayLastRefill\n";
-        
-        @file_put_contents($logFile, $logMessage, FILE_APPEND);
     }
 }
