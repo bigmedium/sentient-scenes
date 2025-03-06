@@ -25,13 +25,16 @@ This project explores these themes of Sentient Design:
 ### Installation
 
 1. Clone this repository to your web server
-2. Copy `config-sample.php` to `config.php`
-3. Edit `config.php` to add your OpenAI API key
+2. Make sure the `data` directory is writable by your web server
+3. Copy `config-sample.php` to `config.php`
+4. Edit `config.php` to add your OpenAI API key
 
 ```sh
+chmod 755 data/  # Ensure directory permissions
 cp config-sample.php config.php
 nano config.php  # Edit to add your API key
 ```
+
 ## Usage
 
 1. Browse to `index.html` in a web browser
@@ -84,9 +87,30 @@ The prompt continues by giving specific technical and format guidance for the re
 
 This kind of prompt reveals new opportunities for designers of Sentient Design experiences to be involved in the engineering process in new ways. The prompt gives technical instruction but also creative guidance and business requirements. Crafting prompts for intelligent interfaces becomes a central part of the design process as much as (or more) than Figma work. Designers can and should do a ton of exploratory design work by talking to AI in tools like ChatGPT, Claude, and Gemini. Just like you draft and explore visual and interaction experiments in traditional design tools, you should also be an active part of drafting prompts to test open-ended behaviors for Sentient Design experiences.
 
+## Configuration
+
+The `config.php` file contains several settings that control the application's behavior:
+
+- **API Settings**
+  - `openai_api_key`: Your OpenAI API key
+  - `openai_api_url`: API endpoint URL
+  - `openai_model`: OpenAI model to use for scene generation
+  - `temperature`: Controls randomness (0.0-1.0)
+
+- **Pricing Settings**
+  - `openai_pricing`: Cost per 1K tokens for input/output for estimating cost per request
+
+- **Rate Limiting**
+  - `rate_limits.user.per_minute.max`: Maximum requests per minute per user
+  - `rate_limits.user.per_day.max`: Maximum requests per day per user
+  - `rate_limits.global.per_minute.max`: Maximum total requests per minute
+  - `rate_limits.global.per_day.max`: Maximum total requests per day
+
 ## Development and debugging
 
-To enable debugging, set the `DEBUG` flag to `true` in `script.js`:
+### Frontend debugging
+
+To enable frontend debugging, set the `DEBUG` flag to `true` in `script.js`:
 
 ```javascript
 const DEBUG = true;
@@ -99,7 +123,15 @@ When enabled, the console shows color-coded information for each scene request:
 - **Token Usage**: Shows API token consumption and estimated costs
 - **Errors**: Captures any issues that occur during processing
 
-This information helps with troubleshooting and provides insight into how AI transforms text descriptions into visual scenes.
+### Rate limiter debugging
+
+To disable rate limiting during development, set the `DEBUG_MODE` constant to `true` in `rate-limiter.php`:
+
+```php
+const DEBUG_MODE = true;
+```
+
+**WARNING**: Only use this during development and testing. Setting this to `true` completely disables all rate limiting, which could lead to unexpected API costs in production.
 
 ## Credits
 
