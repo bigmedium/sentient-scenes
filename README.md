@@ -2,7 +2,11 @@
 
 Create simple animated scenes in this playful demo of [Sentient Design](https://bigmedium.com/ideas/hello-sentient-design.html) and radically adaptive interfaces.
 
-Demo: <https://bigmedium.com/labs/scenes/>
+Demo: 
+<https://bigmedium.com/labs/scenes/>
+
+Learn more about the project:
+<https://bigmedium.com/projects/sentient-scenes.html>
 
 ## Overview
 
