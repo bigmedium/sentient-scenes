@@ -1,6 +1,6 @@
 # Sentient Scenes
 
-Create simple animated scenes in this playful demo of [Sentient Design](https://bigmedium.com/ideas/hello-sentient-design.html) and radically adaptive interfaces.
+Create simple animated scenes in this playful exploration of [Sentient Design](https://bigmedium.com/ideas/hello-sentient-design.html) and radically adaptive interfaces.
 
 Demo: 
 <https://bigmedium.com/labs/scenes/>
