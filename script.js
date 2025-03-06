@@ -117,20 +117,77 @@ document.addEventListener('DOMContentLoaded', () => {
     /**
      * Shows an error message to the user
      * @param {string} message - The error message to display
-     * @param {string} type - The type of error (system_error or input_error)
+     * @param {string} type - The type of error (system_error, input_error, or rate_limit_error)
      */
     function showError(message, type) {
-        const errorEmoji = type === 'system_error' ? '⚠️' : '💭';
+        let errorEmoji;
+        
+        switch (type) {
+            case 'rate_limit_error':
+                errorEmoji = '⏱️';
+                break;
+            case 'system_error':
+                errorEmoji = '⚠️';
+                break;
+            default:
+                errorEmoji = '💭';
+        }
+        
         captionText.textContent = `${errorEmoji} ${message}`;
         
         const movementDesc = document.getElementById('movementDescription');
         movementDesc.textContent = 'Scene generation failed';
         
-        // Apply subtle visual feedback
+        // Apply visual feedback based on error type
         characterElement.classList.add('error');
+        
+        // For rate limit errors, use a softer visual indication
+        if (type === 'rate_limit_error') {
+            characterElement.style.backgroundColor = '#FF9966'; // Softer orange color for rate limits
+        }
+        
         setTimeout(() => {
             characterElement.classList.remove('error');
+            characterElement.style.removeProperty('background-color');
         }, 1000);
+    }
+
+    /**
+     * Creates a visual state for rate limit errors
+     * @param {string} message - The error message to display
+     * @param {string} code - The error code identifying the type of rate limit
+     */
+    function showRateLimitError(message, code) {
+        // Clean up any existing animations first
+        cleanupPreviousAnimation(characterElement);
+        
+        // Determine which emoji to use based on the rate limit type
+        const isGlobalLimit = code.startsWith('global_');
+        const emoji = isGlobalLimit ? '😅' : '⏱️';
+        const limitType = isGlobalLimit ? 'Global' : 'Personal';
+        
+        // Batch all visual updates in the next frame
+        requestAnimationFrame(() => {
+            // Update CSS variables for colors
+            root.style.setProperty('--background-color', '#990000');
+            root.style.setProperty('--foreground-color', '#ffdddd');
+            
+            // Set typeface
+            root.style.setProperty('--caption-font', 'Courier New, monospace');
+            
+            // Update caption text with error message
+            captionText.textContent = `${emoji} ${message}`;
+            
+            // Reset character to center (already happens by default)
+            
+            // Apply breathing animation (which is the default when no other animation is applied)
+            // We don't need to do anything special here as the breathing animation 
+            // will be applied automatically when no other animations are present
+            
+            // Update movement description
+            const movementDesc = document.getElementById('movementDescription');
+            movementDesc.textContent = `${limitType} rate limit reached. Character is at rest.`;
+        });
     }
 
     /**
@@ -263,7 +320,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         isRequestInProgress = true;
         updateUIState(true);
-    
+
         try {
             debugLog('🔼 Scene Request', { description }, 'request');
 
@@ -279,6 +336,12 @@ document.addEventListener('DOMContentLoaded', () => {
             
             debugLog('🔽 Scene Response', data, 'response');
             
+            // Handle rate limit errors (429 status code)
+            if (response.status === 429 && data.type === 'rate_limit_error') {
+                showRateLimitError(data.message, data.code || '');
+                return;
+            }
+            
             if (!response.ok) {
                 if (data.error) {
                     if (data.type === 'system_error') {
@@ -290,7 +353,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
-    
+
             updateScene(data);
             
         } catch (error) {

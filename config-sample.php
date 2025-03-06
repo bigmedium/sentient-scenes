@@ -16,26 +16,18 @@ return [
     'rate_limits' => [
         'user' => [
             'per_minute' => [
-                'max' => 10,     // Maximum requests per minute
-                'window' => 60   // Window size in seconds
-            ],
-            'per_hour' => [
-                'max' => 50,      // Maximum requests per hour
-                'window' => 3600  // Window size in seconds
+                'max' => 10     // Maximum requests per minute
             ],
             'per_day' => [
-                'max' => 200,      // Maximum requests per day
-                'window' => 86400  // Window size in seconds
+                'max' => 40     // Maximum requests per day
             ]
         ],
         'global' => [
             'per_minute' => [
-                'max' => 500,    // Maximum total requests per minute
-                'window' => 60   // Window size in seconds
+                'max' => 500    // Maximum total requests per minute
             ],
             'per_day' => [
-                'max' => 50000,  // Maximum total requests per day
-                'window' => 86400
+                'max' => 50000  // Maximum total requests per day
             ]
         ]
     ]

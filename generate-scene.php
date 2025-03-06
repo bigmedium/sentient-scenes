@@ -18,13 +18,16 @@ header('X-Content-Type-Options: nosniff');
 header('X-Frame-Options: DENY');
 header('X-XSS-Protection: 1; mode=block');
 
+// Load rate limiter
+require_once __DIR__ . '/rate-limiter.php';
+
 // System prompt for scene generation
-    $systemPrompt = <<<'EOD'
+$systemPrompt = <<<'EOD'
 You are a scene generation assistant that creates animated stories. Your output defines a scene by controlling a character (a square div) that moves based on the user's description. The character always starts at the center of the viewport. You will provide the colors, font, animation, and text description that match the story's topic and mood.  
 
 ## Response guidelines
 
-Generate a single JSON object (no other text) with these exact properties to define the scene’s **mood, movement, and atmosphere**. Return only a valid JSON object, formatted exactly as shown. Do not include explanations, extra text, or markdown headers.
+Generate a single JSON object (no other text) with these exact properties to define the scene's **mood, movement, and atmosphere**. Return only a valid JSON object, formatted exactly as shown. Do not include explanations, extra text, or markdown headers.
 
 ```json
 {
@@ -173,6 +176,29 @@ try {
     }
     $config = require_once __DIR__ . '/config.php';
     
+    // Initialize rate limiter
+    $rateLimiter = new RateLimiter($config);
+    
+    // Check if request is rate limited
+    $rateLimitResult = $rateLimiter->checkLimits();
+    if ($rateLimitResult !== null) {
+        // Return rate limit error response with appropriate headers
+        http_response_code(429); // Too Many Requests
+        
+        // Add a Retry-After header to help clients know when to retry
+        if (strpos($rateLimitResult['code'], 'minute') !== false) {
+            header('Retry-After: 30'); // Retry after 30 seconds for minute limits
+        } else {
+            // For daily limits, suggest retrying after midnight
+            $tomorrow = strtotime('tomorrow');
+            $secondsUntilMidnight = $tomorrow - time();
+            header('Retry-After: ' . $secondsUntilMidnight);
+        }
+        
+        echo json_encode($rateLimitResult);
+        exit;
+    }
+    
     // Get and validate POST input data
     $rawInput = file_get_contents('php://input');
     if ($rawInput === false) {
@@ -191,7 +217,6 @@ try {
     $description = trim($data['description']);
      
     // Prepare the prompt for OpenAI
-
     $messages = [
         ['role' => 'system', 'content' => $systemPrompt],
         ['role' => 'user', 'content' => $description]
@@ -238,20 +263,23 @@ try {
         throw new Exception('Unexpected OpenAI response format', 502);
     }
 
-    // Parse scene data
-    $sceneData = json_decode($aiResponse['choices'][0]['message']['content'], true);
+    // Parse scene data with improved error handling
+    $sceneContent = $aiResponse['choices'][0]['message']['content'];
+    $sceneData = json_decode($sceneContent, true);
     if (json_last_error() !== JSON_ERROR_NONE) {
-        throw new Exception('Invalid scene data format: ' . json_last_error_msg(), 500);
+        error_log('Failed to parse scene data JSON: ' . json_last_error_msg());
+        error_log('Response content: ' . substr($sceneContent, 0, 500) . '...');
+        throw new Exception('Invalid scene data format. Please try again.', 500);
     }
 
     // Validate required keys
     $requiredKeys = ['background', 'content', 'shadow', 'caption', 'font-family', 'animation', 'fallback'];
     $missingKeys = array_diff($requiredKeys, array_keys($sceneData));
     if (!empty($missingKeys)) {
-        throw new Exception('Missing required keys in scene data: ' . implode(', ', $missingKeys), 500);
+        throw new Exception('Missing required scene data: ' . implode(', ', $missingKeys), 500);
     }
 
- // Calculate token usage and costs
+    // Calculate token usage and costs
     $usage = $aiResponse['usage'];
     $inputCost = ($usage['prompt_tokens'] / 1000) * $config['openai_pricing']['input_per_1k'];
     $outputCost = ($usage['completion_tokens'] / 1000) * $config['openai_pricing']['output_per_1k'];
@@ -263,6 +291,9 @@ try {
         'est_usd' => round($inputCost + $outputCost, 6)
     ];
 
+    // Consume a token from rate limit buckets
+    $rateLimiter->consumeToken();
+
     // Return the scene data
     echo json_encode($sceneData);
 
@@ -271,7 +302,7 @@ try {
     $statusCode = $e->getCode() ?: 500;
     http_response_code($statusCode);
 
-    // Log the full error for debugging
+    // Log the error
     error_log('Scene Generator Error: ' . $e->getMessage());
 
     // Return sanitized error response
@@ -279,7 +310,7 @@ try {
         'error' => true,
         'type' => $statusCode >= 500 ? 'system_error' : 'input_error',
         'message' => $statusCode >= 500 
-            ? 'An error occurred while generating the scene'
+            ? 'An error occurred while generating the scene. Please try again.'
             : $e->getMessage()
     ]);
 }
