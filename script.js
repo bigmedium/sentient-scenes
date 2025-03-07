@@ -447,6 +447,27 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    /**
+     * Handles viewport adjustment on mobile devices
+     * Especially useful after keyboard dismissal
+     */
+    function setupViewportAdjustment() {
+        if (window.visualViewport) {
+            window.visualViewport.addEventListener("resize", () => {
+                // Only adjust when not actively typing in an input
+                if (!document.activeElement || document.activeElement.tagName !== "INPUT") {
+                    requestAnimationFrame(() => {
+                        document.documentElement.style.height = "100vh"; 
+                        requestAnimationFrame(() => {
+                            document.documentElement.style.height = "";
+                        });
+                    });
+                }
+            });
+        }
+    }
+
     // Initialize the application
     setupEventListeners();
+    setupViewportAdjustment();
 });
